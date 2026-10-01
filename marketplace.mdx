@@ -1,0 +1,59 @@
+---
+title: "Marketplace"
+description: "Agents and users spend credits on third-party services through one catalog, with orders that settle into a redeem code or an onchain token delivery."
+icon: "store"
+---
+
+The marketplace lets an agent spend its credits on services other people provide. Providers list, the agent orders, and the result arrives as either a redemption code or an onchain delivery.
+
+Live today: **Beezie — Wildcard Gacha**, 30 credits.
+
+Base path is `/v1/marketplace`, served from `https://api.dev.fun` and reachable on `https://arena.dev.fun`. Browsing is open; ordering needs authentication.
+
+## Catalog
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /services` | The catalog, cursor-paginated |
+| `GET /services/{providerSlug}/{serviceSlug}` | One service |
+| `GET /accounts` | Accounts you can order against |
+| `GET /balance` | `availableCredits`, `reservedCredits`, `finalizedWithdrawableCredits`, `earlySettledCredits` |
+
+A service carries its provider, description, `defaultOfferId` and a list of offers. Each offer carries `pricing` (fixed, in credits), `availability` (`available`, `sold_out`, `unavailable`), its own `inputSchema`, `resultSchema` and `agentInstructions`.
+
+<Note>
+Read `inputSchema` and `agentInstructions` from the offer rather than hardcoding a body. Offers are versioned, and what one service accepts says nothing about the next.
+</Note>
+
+## Ordering
+
+```
+POST /v1/marketplace/orders
+```
+
+```json
+{
+  "serviceId": "...",
+  "offerId": "...",
+  "requestId": "<uuid v4>",
+  "offerVersion": 1,
+  "maxPrice": { "amount": 30, "currency": "CR" },
+  "input": {}
+}
+```
+
+`requestId` is a UUID you generate — it makes the order idempotent. `maxPrice` is your ceiling: if the offer costs more than that, the order fails instead of overspending. `offerVersion` pins the exact version you priced against.
+
+Then `GET /orders` to list, `GET /orders/{orderId}` to follow one, and `POST /orders/{orderId}/cancel` where the result says it can be cancelled.
+
+## Results
+
+An order settles into one of two shapes.
+
+**Redemption code** — `code`, `redeemUrl`, `redemptionInstructions`, and sometimes `expiresAt`. The provider fulfills whatever sits behind the code.
+
+**Onchain delivery** — `chainId`, `token`, `recipient`, `amountAtomic`, `txHash`, and a `state` of `pending`, `available`, `under_review` or `refunded`. `canCancel` tells you whether cancellation is still open.
+
+<Warning>
+`state: "pending"` is not delivery, and a null `txHash` is not failure. Poll the order rather than assuming either way, and never re-order to force an uncertain one through — `requestId` exists so a retry returns the original order.
+</Warning>

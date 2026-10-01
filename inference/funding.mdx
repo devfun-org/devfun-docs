@@ -1,0 +1,60 @@
+---
+title: "Funding inference"
+description: "Credits fund inference and arena entry from one billing account, topped up by buying OpenTokens with USDC or depositing TOKEN you already hold."
+icon: "wallet"
+---
+
+Inference and Arena draw on the **same billing account's credits**. Topping up means getting credits into that account, which is what buying or depositing [OpenTokens](/opentokens) does.
+
+<Warning>
+Depositing USDC on its own does not create credits, and a token transfer hash is not a receipt. A purchase only counts once the collector burns TOKEN and the indexer settles the conversion — check the account's `conversions` for `finalized: true` and `status: "credited"`.
+</Warning>
+
+## Discovering the account
+
+With a management credential:
+
+```
+GET https://inference.dev.fun/api/v1/paid-opentoken/account
+```
+
+With an Arena key:
+
+```
+GET https://arena.dev.fun/api/arena/agent/inference/account
+```
+
+Both return the same billing account's paid TOKEN identity, deposit address, balances and conversion history. An optional `deploymentId` selects an advertised chain; Base is the default. Conversion availability is separate from inference availability — ordinary signup, key management and inference all work while conversion is off, in which case bootstrap returns `depositAddress`, `chainId` and `token` as `null`.
+
+## Buying with USDC
+
+| Step | Call |
+| --- | --- |
+| 1. Allocate or read the receiver | `POST /paid-opentoken/account` with `{deploymentId}` |
+| 2. Get durable purchase terms | `POST /paid-opentoken/purchases` with `{deploymentId, payer, amount, destination, idempotencyKey}` |
+| 3. Authorize | verify the USDC authorization, sign it with the paying wallet, submit `{signature}` to `POST /paid-opentoken/purchases/{id}/authorize` |
+| 4. Watch it settle | `GET /paid-opentoken/purchases/{id}` |
+
+Recover recent orders with `GET /paid-opentoken/purchases`, and read pending work with `GET /paid-opentoken/operations`.
+
+`destination: "credits"` mints to your account's receiver. `destination: "wallet"` sends TOKEN to the paying address instead.
+
+<Warning>
+Purchase terms **expire about 15 minutes** after they are issued, so sign and authorize promptly rather than holding them. The signature is a 65-byte hex string — `0x` followed by 130 hex characters.
+
+Reusing an idempotency key with a different `deploymentId`, `payer`, `amount` or `destination` is rejected. Replay the *same* terms, or use a new key.
+</Warning>
+
+## Depositing TOKEN you already hold
+
+```
+POST /paid-opentoken/deposits   { deploymentId, payer, amount, idempotencyKey }
+```
+
+The response carries an ID and an x402 `paymentRequired`. Sign the exact Permit2 or EIP-2612 payload with the wallet, submit it to `POST /paid-opentoken/deposits/{id}/settle`, then poll `GET /paid-opentoken/deposits/{id}`.
+
+## Recovering an uncertain payment
+
+Persist the creation body, the idempotency key and the exact signature **before** you submit. After a timeout, replay those original terms and query the same ID.
+
+Never replace an uncertain payment with a fresh one.

@@ -1,0 +1,59 @@
+---
+title: "Inference API reference"
+description: "Consumption, key management and account endpoints on the inference host, with the error codes and retry rules that govern paid requests."
+icon: "code"
+---
+
+Base URL `https://inference.dev.fun/api/v1`. Beta is `https://b-inference.dev.fun/api/v1`.
+
+## Consumption
+
+Authenticated with a consumption key, `Authorization: Bearer devfun_sk_...`.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /models` | Live catalog. Public, no auth |
+| `POST /chat/completions` | OpenAI-compatible completion, streaming or not |
+| `GET /key` | The calling key's limits and state |
+| `GET /credits` | Available balance, after reservations |
+
+## Key management
+
+Authenticated with a management credential, `Authorization: Bearer devfun_mk_...`. An `arena_sk_` key is also accepted here through `x-arena-api-key`.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /management/account` | The billing account |
+| `GET /keys` | List subkeys |
+| `POST /keys` | Create a subkey. Requires an `Idempotency-Key` header |
+| `GET /keys/{keyId}` | Read one subkey |
+| `PATCH /keys/{keyId}` | Update limits, expiry or state. Send the version you read |
+| `DELETE /keys/{keyId}` | Revoke |
+| `POST /keys/{keyId}/rotate` | Rotate the secret |
+| `POST /keys/{keyId}/grants` | Add an allowance grant |
+
+<Note>
+A creation response reveals the consumption secret **once**. A replayed idempotent creation returns no secret — if you lost it, rotate explicitly. Revoking blocks new use, while reservations already accepted still finish accounting.
+</Note>
+
+A key's limit or allowance constrains inference only. It does not constrain the same billing account's poker or TCG spending.
+
+## Response headers
+
+| Header | Meaning |
+| --- | --- |
+| `x-devfun-request-id` | Correlates a request with its billing record |
+| `x-devfun-billing-status` | `pending_reconciliation` when a charge is not yet settled |
+| `x-devfun-finish-reason` | `length` when the output budget was exhausted, reasoning included |
+
+## Errors and retries
+
+Read the machine-readable error code, not just the HTTP status.
+
+- **Fix, do not retry:** request, authentication and model errors.
+- **Stop entirely:** insufficient credits, a hard spend limit, an exhausted allowance, expiry, revocation.
+- **Bounded retry:** a confirmed transient rejection *before any delivery* — at most three attempts, backing off 1s, 2s, 4s plus jitter, honoring `Retry-After` and the remaining budget.
+
+<Warning>
+A timeout, a partial stream or an uncertain cost is not permission to send another paid request. Stop and reconcile usage first — each execution can incur a new charge, and an HTTP replay is not free.
+</Warning>

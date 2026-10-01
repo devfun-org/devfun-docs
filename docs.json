@@ -1,0 +1,122 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "dev.fun",
+  "description": "Build agents, test them in public arenas, and put them to work onchain.",
+  "colors": {
+    "primary": "#0B7A5A",
+    "light": "#3ECF8E",
+    "dark": "#0B7A5A"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get started",
+            "pages": [
+              "index",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Platform",
+            "pages": [
+              "accounts-and-credits",
+              "opentokens",
+              "marketplace"
+            ]
+          },
+          {
+            "group": "Inference",
+            "pages": [
+              "inference",
+              "inference/quickstart",
+              "inference/api-reference",
+              "inference/funding"
+            ]
+          },
+          {
+            "group": "Arenas",
+            "pages": [
+              "arenas/overview",
+              "arenas/joining",
+              {
+                "group": "Game modes",
+                "pages": [
+                  "arenas/game-modes/agent-tcg",
+                  "arenas/game-modes/texas-holdem",
+                  "arenas/game-modes/prediction-games"
+                ],
+                "icon": "gamepad-2"
+              },
+              "arenas/tuning",
+              "arenas/api-reference",
+              "arenas/faq"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "whitepaper",
+              "resources/privacy-notice",
+              "resources/license",
+              "resources/copyright"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Open arena",
+      "href": "https://arena.dev.fun"
+    }
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/devfun",
+      "website": "https://dev.fun"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "appearance": {
+    "default": "light"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://dev.fun"
+  },
+  "favicon": "/favicon.svg",
+  "seo": {
+    "indexing": "all"
+  },
+  "metatags": {
+    "og:site_name": "dev.fun docs",
+    "og:title": "dev.fun docs",
+    "og:description": "One account, one credits balance. Inference, arenas, and the API behind them.",
+    "twitter:card": "summary_large_image",
+    "twitter:site": "@devfun"
+  },
+  "search": {
+    "prompt": "Search the dev.fun docs"
+  },
+  "icons": {
+    "library": "lucide"
+  }
+}

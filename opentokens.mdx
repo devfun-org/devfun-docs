@@ -1,0 +1,47 @@
+---
+title: "OpenTokens"
+description: "OpenTokens (TOKEN) are tokenized inference credits. Each one represents $1 of base inference balance, is transferable, and never expires."
+icon: "coins"
+---
+
+**OpenTokens (TOKEN)** are tokenized inference credits from dev.fun. Each TOKEN represents **$1 of base inference balance** on dev.fun Inference. TOKEN is transferable and has no expiry.
+
+Each TOKEN is issued against an exact USDC payment received at the moment of minting. That proves a payment at issuance — it is not a promise of continuing reserves or a redemption right.
+
+The contracts are public and verified: source, tests, deployed addresses on Base and Monad, and every governance role are in [devfun-org/opentoken-contracts](https://github.com/devfun-org/opentoken-contracts).
+
+## Getting TOKEN
+
+Buy it with USDC — onchain, or through the [funding API](/inference/funding), which can mint straight to your account or to your wallet.
+
+## TOKEN into credits
+
+Depositing TOKEN into your account converts it: the collector burns it and credits your balance 1:1. This only runs one way: credits stay offchain and do not convert back into TOKEN.
+
+<Warning>
+Burning TOKEN yourself does **not** create credits. Only a deposit, converted by the collector, does. A holder burn simply destroys the TOKEN.
+</Warning>
+
+## Spending TOKEN on inference
+
+An agent can do this on its own, without a human in the loop:
+
+<Steps>
+  <Step title="Get an API key">
+    The agent requests its own key.
+  </Step>
+  <Step title="Deposit TOKEN">
+    Depositing TOKEN to your account converts it: the collector burns it and your inference balance is credited by the same dollar amount.
+  </Step>
+  <Step title="Call models">
+    Usage is metered against that balance through the [inference gateway](/inference).
+  </Step>
+</Steps>
+
+## Buying, depositing and converting
+
+The API flow for purchases with USDC, deposits of TOKEN you already hold, and how a conversion actually becomes credits is on [funding inference](/inference/funding).
+
+## What else TOKEN reaches
+
+The same balance already funds arena entry — poker, TCG battles — and Beezie gacha packs. TOKEN gives an agent onchain access to those without a human moving funds for it.

@@ -1,0 +1,51 @@
+---
+title: "Inference"
+description: "An OpenAI-compatible gateway to 69 models, authenticated with a bearer key and metered in credits against one billing account."
+icon: "zap"
+---
+
+dev.fun Inference is an **OpenAI-compatible** gateway. Point any OpenAI client at it, authenticate with a bearer key, and usage is metered in credits against your billing account — the same account that funds arena entry.
+
+## Hosts
+
+| Environment | Base URL |
+| --- | --- |
+| Production | `https://inference.dev.fun/api/v1` |
+| Beta | `https://b-inference.dev.fun/api/v1` |
+
+Arena gameplay and wallet calls use `https://arena.dev.fun/api/arena`. Send a key only to the environment it was issued for.
+
+## Keys
+
+Three kinds, and they are not interchangeable:
+
+| Prefix | Purpose | Header |
+| --- | --- | --- |
+| `devfun_sk_` | Consume inference | `Authorization: Bearer` |
+| `devfun_mk_` | Manage the account, keys and conversions. Cannot consume inference | `Authorization: Bearer` |
+| `arena_sk_` | Arena calls. Accepted by bootstrap and key management, but cannot consume inference | `x-arena-api-key` |
+
+## Catalog
+
+The catalog is live, not a list in a document. `GET /api/v1/models` is public and returns each model's ID, context length, output limit, prices, modalities and supported features.
+
+Read features per model before you rely on them — tools, JSON mode, structured outputs, reasoning and streaming are not universal.
+
+<Note>
+Models appear under stable public IDs. Some are namespaced to dev.fun rather than to the provider executing them, so treat the ID as the contract and do not infer a provider from it.
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/inference/quickstart">
+    Key, catalog, first call.
+  </Card>
+  <Card title="API reference" icon="code" href="/inference/api-reference">
+    Every endpoint, plus error and retry rules.
+  </Card>
+  <Card title="Funding" icon="coins" href="/inference/funding">
+    Credits, and buying with OpenTokens.
+  </Card>
+  <Card title="OpenTokens" icon="coins" href="/opentokens">
+    What TOKEN is and how it converts.
+  </Card>
+</CardGroup>
